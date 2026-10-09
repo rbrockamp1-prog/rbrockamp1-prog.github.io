@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="gravity/assets/favicon.svg" type="image/svg+xml">
+<title>Ricky Brockamp Portfolio Sites</title>
+<style>
+/* Layout: a slim control strip over a full-height live site frame */
+:root{
+  --bar:#f3f1ec;--bar-fg:#1d1b24;--muted:#5d5a66;--chip:#e6e2da;--on:#1d1b24;--on-fg:#f3f1ec;--line:rgba(29,27,36,.12);--focus:#2347c6;
+  --ui:"Inter Tight",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bar:#18171d;--bar-fg:#eceaf2;--muted:#a6a2b3;--chip:#26242d;--on:#eceaf2;--on-fg:#18171d;--line:rgba(236,234,242,.14);--focus:#9db4ff;color-scheme:dark}}
+:root[data-theme="dark"]{--bar:#18171d;--bar-fg:#eceaf2;--muted:#a6a2b3;--chip:#26242d;--on:#eceaf2;--on-fg:#18171d;--line:rgba(236,234,242,.14);--focus:#9db4ff;color-scheme:dark}
+html,body{height:100%;margin:0}
+body{margin:0;display:flex;flex-direction:column;background:var(--bar);color:var(--bar-fg);font:500 14px/1.3 var(--ui)}
+.bar{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:8px 16px;border-bottom:1px solid var(--line)}
+.name{font-weight:700;letter-spacing:-.01em;margin:0;font-size:14px}
+.tabs{display:flex;gap:4px;background:var(--chip);padding:4px;border-radius:999px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;color:var(--bar-fg);font:600 13px var(--ui);min-height:36px;padding:0 14px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--on);color:var(--on-fg)}
+.tabs button:focus-visible,.bar a:focus-visible,.pages select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.pages{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.pages select{width:auto;max-width:60vw;font:600 13px var(--ui);min-height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bar);color:var(--bar-fg);padding:0 8px}
+.note{margin-left:auto;color:var(--muted);font-size:12.5px;max-width:52ch}
+.bar a{color:var(--bar-fg);font-weight:600}
+iframe{flex:1;width:100%;border:0;background:#fff;min-height:0}
+@media (max-width:1280px){.note{display:none}}
+@media (max-width:760px){.name{width:100%}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <p class="name">Ricky Brockamp · portfolio sites</p>
+  <div class="tabs" role="tablist" aria-label="Site direction">
+    <button role="tab" id="t-gravity" data-s="gravity" aria-selected="true">Gravity</button>
+    <button role="tab" id="t-swiss" data-s="swiss" aria-selected="false">Swiss</button>
+    <button role="tab" id="t-canvas" data-s="canvas" aria-selected="false">Canvas</button>
+    <button role="tab" id="t-fluid" data-s="fluid" aria-selected="false">Fluid</button>
+  </div>
+  <label class="pages" for="pg">Page
+    <select id="pg">
+      <option value="index.html">Home</option>
+      <option value="about.html">About</option>
+      <option value="process.html">Process</option>
+      <option value="photo.html">Photo</option>
+      <option value="resume.html">Resume</option>
+      <option value="work/nmls.html">Case · NMLS Modernization</option>
+      <option value="work/finra-ui.html">Case · Design System — FINRA UI</option>
+      <option value="work/regulator-workspace.html">Case · Regulator Workspace</option>
+      <option value="work/real-estate-tech.html">Case · Real Estate Tech</option>
+    </select>
+  </label>
+  <p class="note">Each direction is a full site with eight linked pages. Links inside the preview work, so you can click around as a visitor would.</p>
+</div>
+<iframe id="f" title="Portfolio site preview" src="gravity/index.html"></iframe>
+<script>
+(()=>{
+const f=document.getElementById('f'),pg=document.getElementById('pg'),tabs=[...document.querySelectorAll('[role=tab]')];
+let site='gravity';
+try{const s=localStorage.getItem('rb-site');if(s&&tabs.some(t=>t.dataset.s===s))site=s}catch(e){}
+const h=(location.hash||'').slice(1);if(tabs.some(t=>t.dataset.s===h))site=h;
+function show(s,page){site=s;tabs.forEach(t=>t.setAttribute('aria-selected',String(t.dataset.s===s)));f.src=s+'/'+(page||pg.value);try{localStorage.setItem('rb-site',s)}catch(e){}}
+tabs.forEach((t,i)=>{t.addEventListener('click',()=>show(t.dataset.s));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];n.focus();show(n.dataset.s)}})});
+pg.addEventListener('change',()=>show(site,pg.value));
+f.addEventListener('load',()=>{try{const p=f.contentWindow.location.pathname,m=p.match(/\/(gravity|swiss|canvas|fluid)\/(.*)$/);if(m){const opt=[...pg.options].find(o=>o.value===m[2]);if(opt)pg.value=m[2]}}catch(e){}});
+show(site,'index.html');
+})();
+</script>
+
+</body>
+</html>
