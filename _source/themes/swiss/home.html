@@ -1,0 +1,169 @@
+{{HEAD}}
+<body class="home">
+{{HEADER}}
+<main id="main" tabindex="-1">
+<section class="s-hero" aria-labelledby="nm">
+ <div class="wrap s-grid">
+  <div class="s-type">
+   <h1 class="s-name" id="nm"><span class="sr-only">Ricky Brockamp</span><span class="l l1" aria-hidden="true"><span>Ricky</span><span class="s-meta"><b>Product Designer</b>Design Systems<br>Accessibility · Research<br>AI initiatives · Strategy<br><i>Los Angeles, CA</i></span></span><span class="l l2" aria-hidden="true"><span>Brockamp</span></span></h1>
+   <p class="sr-only">Product Designer and Design Lead in Los Angeles, CA. Focus: design systems, accessibility, research, AI initiatives and strategy.</p>
+   <div class="s-under"><p>{{TAGLINE}}</p><a class="btn btn-primary" href="mailto:{{EMAIL}}">Start a conversation</a></div>
+  </div>
+  <ol class="s-works" aria-label="Selected work">
+   <li data-w="0"><a href="work/nmls.html"><span class="n" aria-hidden="true">01<i></i></span><b>NMLS Modernization</b><small>Information Architecture</small></a></li>
+   <li data-w="1"><a href="work/finra-ui.html"><span class="n" aria-hidden="true">02<i></i></span><b>Design System — FINRA UI</b><small>Design System &amp; Accessibility</small></a></li>
+   <li data-w="2"><a href="work/regulator-workspace.html"><span class="n" aria-hidden="true">03<i></i></span><b>Regulator Workspace</b><small>Product Design, FINRA client</small></a></li>
+   <li data-w="3"><a href="work/real-estate-tech.html"><span class="n" aria-hidden="true">04<i></i></span><b>Real Estate Tech</b><small>Branding &amp; Product Design</small></a></li>
+  </ol>
+  <div class="s-field" id="field">
+   <div class="s-bar"><span class="lab" aria-hidden="true">Generative grid</span><button class="motion-toggle" id="motion" type="button" aria-pressed="false">Pause animation</button></div>
+   <div class="s-ax" id="ax" aria-hidden="true"></div>
+   <canvas id="cv" aria-hidden="true"></canvas>
+   <div class="s-ay" id="ay" aria-hidden="true"></div>
+  </div>
+ </div>
+</section>
+{{WORK}}
+{{QUOTES}}
+{{PROCESS}}
+{{CONTACT}}
+</main>
+{{FOOTER}}
+<script>
+(()=>{
+const $=s=>document.querySelector(s),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const C={paper:'#f2ede4',red:'#e3321f',cob:'#2347c6',yel:'#f4b223',navy:'#18223f'};
+const PORTRAIT='assets/ricky.jpg';
+/* motion preference: reduced-motion users start paused; choice is remembered */
+let paused=RM;try{const v=localStorage.getItem('rb-motion');if(v)paused=v==='off'}catch(e){}
+const mb=$('#motion');function syncMotion(){mb.setAttribute('aria-pressed',String(paused));mb.textContent=paused?'Play animation':'Pause animation'}
+mb.addEventListener('click',()=>{paused=!paused;try{localStorage.setItem('rb-motion',paused?'off':'on')}catch(e){}syncMotion();if(paused)clearTimeout(timer);else schedule()});syncMotion();
+
+const nm=$('#nm');
+function fit(){nm.style.setProperty('--nf','100px');const l=nm.querySelector('.l2>span'),w=l.getBoundingClientRect().width,avail=nm.parentElement.clientWidth;let f=100*avail/w*.995;
+ if(innerWidth>760){const room=innerHeight-64-14-28-170-130;f=Math.min(f,Math.max(90,room/1.7))}nm.style.setProperty('--nf',f+'px')}
+
+const cv=$('#cv'),x=cv.getContext('2d'),field=$('#field');
+let cols=5,rows=5,S=100,DPR=1,tiles=[],photo={c:3,r:0,w:2,h:2};
+const rnd=(a=1,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a),pickW=o=>{let t=0;for(const k in o)t+=o[k];let r=Math.random()*t;for(const k in o){r-=o[k];if(r<=0)return k}return Object.keys(o)[0]};
+const SH={quarter:3,half:3,circle:2,bars:1.4,block:1.4,tri:1,ring:1,leaf:1.3,dot:.7,glyph:.35};
+let BGW={paper:4.2,navy:1.3,red:1.4,cob:1.4,yel:1.3};
+const GL=['01','02','03','04','R','B','→'];
+function cfg(o={}){const bg=o.bg||pickW(BGW);let fg=o.fg;if(!fg){const w={...BGW};delete w[bg];if(bg!=='paper')w.paper=2.5;fg=pickW(w)}const sh=o.sh||pickW(SH);return{bg,fg,sh,rot:sh==='glyph'?(Math.random()<.6?0:270):o.rot??(rnd(4)|0)*90,fx:o.fx??Math.random()<.5,gl:GL[rnd(GL.length)|0]}}
+const inPhoto=(c,r)=>c>=photo.c&&c<photo.c+photo.w&&r>=photo.r&&r<photo.r+photo.h;
+function compose(mode){
+ const out=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)out[r*cols+c]=cfg();
+ if(mode==='mirror'){for(let r=0;r<rows;r++)for(let c=0;c<cols/2;c++){const a=out[r*cols+c],m=cols-1-c;out[r*cols+m]={...a,fx:!a.fx,rot:(360-a.rot)%360}}}
+ if(mode==='rings'){for(let r=0;r+1<rows;r+=2)for(let c=(rnd(2)|0);c+1<cols;c+=2){if(Math.random()<.25)continue;const bg=pickW(BGW),f=cfg({bg}).fg;[[0,0,180],[1,0,270],[0,1,90],[1,1,0]].forEach(([dc,dr,rot])=>out[(r+dr)*cols+c+dc]={...cfg({bg,fg:f,sh:'quarter'}),rot,fx:false})}}
+ if(mode==='diag'){const band=[pickW(BGW),pickW(BGW),'paper'];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const bg=band[(r+c)%3];out[r*cols+c]=cfg({bg,sh:Math.random()<.6?'half':'quarter',rot:((r+c)%2?90:0)+((r>c)?180:0),fx:false})}}
+ if(mode==='bars'){const fg=pickW({red:1,cob:1,navy:1});for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const k=Math.random();out[r*cols+c]=k<.55?cfg({bg:'paper',fg,sh:Math.random()<.6?'bars':'block',rot:(r%2)*90,fx:false}):cfg()}}
+ return out;
+}
+const MODES=['random','rings','mirror','diag','random','bars','mirror'];let mi=0;
+function layout(){
+ const mob=innerWidth<=760;cols=mob?4:5;
+ const fw=field.clientWidth;S=Math.floor(fw/cols);
+ const barH=field.querySelector('.s-bar').offsetHeight;
+ field.style.height=mob?(S*4+22+barH)+'px':'';const fh=mob?S*4:field.clientHeight-18-barH;rows=mob?4:Math.max(3,Math.min(6,Math.floor(fh/S)));
+ photo=mob?{c:2,r:0,w:2,h:2}:{c:3,r:0,w:2,h:2};
+ DPR=Math.min(2,devicePixelRatio||1);cv.width=cols*S*DPR;cv.height=rows*S*DPR;cv.style.width=cols*S+'px';cv.style.height=rows*S+'px';
+ const old=tiles,init=compose('random');tiles=[];
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const i=r*cols+c,o=old[i];tiles.push(o&&o.c===c&&o.r===r?o:{c,r,...init[i],tr:init[i].rot,v:0,lean:0,sc:1,born:0})}
+ $('#ax').innerHTML=[...Array(cols)].map((_,i)=>`<span style="left:${i*S}px">${'ABCDEF'[i]}</span>`).join('')+`<span class="mod" style="left:auto;right:0">${cols}×${rows} / Module ${S}</span>`;
+ $('#ay').innerHTML=[...Array(rows)].map((_,i)=>`<span style="top:${i*S}px">${String(i+1).padStart(2,'0')}</span>`).join('');
+ $('#ay').style.height=rows*S+'px';$('#ax').style.bottom=rows*S+4+'px';
+ kick();
+}
+function wave(oc,orr,mode,dl=0){
+ const cfgs=compose(mode||MODES[mi++%MODES.length]),now=performance.now(),q=RM||paused;
+ tiles.forEach((t,i)=>{if(inPhoto(t.c,t.r))return;const d=Math.hypot(t.c-oc,t.r-orr);t.next=cfgs[i];t.fs=now+dl+d*(q?0:85)+rnd(40);t.fd=q?10:640;t.sw=false});
+ photoFlip=q?0:now+dl+Math.hypot(photo.c+.5-oc,photo.r+.5-orr)*85;kick();
+}
+let photoFlip=0;
+function shape(t,s){
+ x.beginPath();const h=s/2;
+ switch(t.sh){
+  case'circle':x.arc(0,0,h,0,7);break;
+  case'quarter':x.moveTo(-h,-h);x.arc(-h,-h,s,0,Math.PI/2);x.closePath();break;
+  case'half':x.arc(0,h,h,Math.PI,0);x.closePath();break;
+  case'bars':x.rect(-h,-h,s,s/4);x.rect(-h,-h+s*3/8,s,s/4);x.rect(-h,-h+s*3/4,s,s/4);break;
+  case'block':x.rect(-h,-h,h,s);break;
+  case'tri':x.moveTo(-h,-h);x.lineTo(h,-h);x.lineTo(-h,h);x.closePath();break;
+  case'ring':x.arc(0,0,h,0,7);x.moveTo(h*.46,0);x.arc(0,0,h*.46,0,7,true);break;
+  case'leaf':x.arc(-h,h,s,-Math.PI/2,0);x.arc(h,-h,s,Math.PI/2,Math.PI);x.closePath();break;
+  case'dot':x.arc(0,0,s*.17,0,7);break;
+  case'glyph':x.font=`820 ${s*.62}px Archivo,"Arial Narrow",Arial,sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillStyle=C[t.fg];x.fillText(t.gl,0,s*.03);return;
+ }
+ x.fillStyle=C[t.fg];x.fill('evenodd');
+}
+const HN=34;let lum=null;
+function buildLum(src,sx,sy,sw,sh){const o=document.createElement('canvas');o.width=o.height=HN;const g=o.getContext('2d');g.drawImage(src,sx,sy,sw,sh,0,0,HN,HN);const d=g.getImageData(0,0,HN,HN).data;lum=new Float32Array(HN*HN);let mn=1,mx=0;
+ for(let i=0;i<HN*HN;i++){const v=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)/255;lum[i]=v;mn=Math.min(mn,v);mx=Math.max(mx,v)}for(let i=0;i<lum.length;i++)lum[i]=(lum[i]-mn)/(mx-mn||1)}
+lum=new Float32Array(HN*HN).fill(.5);
+(()=>{const im=new Image();im.onload=()=>{try{const s=Math.min(im.width,im.height*.62);buildLum(im,(im.width-s)/2,im.height*.04,s,s);kick()}catch(e){}};im.src=PORTRAIT})();
+function drawPhoto(now){
+ const px=photo.c*S,py=photo.r*S,w=photo.w*S,cell=w/HN;
+ let f=1;if(photoFlip&&now>photoFlip){const p=Math.min(1,(now-photoFlip)/900);f=.15+.85*Math.abs(Math.cos(Math.PI*p))**.5;if(p>=1)photoFlip=0}
+ x.fillStyle=C.yel;x.fillRect(px,py,w,w);
+ const mxp=(mouse.x-px)/w,myp=(mouse.y-py)/w;
+ const paths=[new Path2D(),new Path2D()];
+ for(let j=0;j<HN;j++)for(let i=0;i<HN;i++){const v=1-lum[j*HN+i];const dx=(i+.5)/HN-mxp,dy=(j+.5)/HN-myp,pr=mouse.on&&!RM?Math.max(0,1-Math.hypot(dx,dy)/.22):0;
+  let r=cell*.5*Math.sqrt(v)*1.12*(1+pr*.45)*f;if(r<.35)continue;const cx=px+(i+.5)*cell,cy=py+(j+.5)*cell;const P=paths[pr>.35?1:0];P.moveTo(cx+r,cy);P.arc(cx,cy,r,0,7)}
+ x.fillStyle=C.navy;x.fill(paths[0]);x.fillStyle=C.red;x.fill(paths[1]);
+ const fz=Math.max(9,S*.075),lbl='Fig. 1 — R. Brockamp, Los Angeles';x.font=`700 ${fz}px Archivo,Arial,sans-serif`;x.textAlign='left';x.textBaseline='middle';const tw=x.measureText(lbl).width;x.fillStyle=C.navy;x.fillRect(px,py+w-fz*2.2,tw+fz*1.6,fz*2.2);x.fillStyle=C.paper;x.fillText(lbl,px+fz*.8,py+w-fz*1.1);
+}
+const mouse={x:-1e4,y:-1e4,on:false,cell:-1};
+function cellAt(mx,my){const c=Math.floor(mx/S),r=Math.floor(my/S);return c>=0&&c<cols&&r>=0&&r<rows?{c,r}:null}
+cv.addEventListener('pointermove',e=>{const b=cv.getBoundingClientRect();const mx=e.clientX-b.left,my=e.clientY-b.top;const dir=Math.sign(mx-mouse.x)||1;mouse.x=mx;mouse.y=my;mouse.on=true;
+ const ce=cellAt(mx,my);const id=ce?ce.r*cols+ce.c:-1;
+ if(id!==mouse.cell){mouse.cell=id;if(ce&&!RM){const now=performance.now();tiles.forEach(t=>{const d=Math.hypot(t.c-ce.c,t.r-ce.r);if(d<1.5&&!inPhoto(t.c,t.r)){(t.q=t.q||[]).push({at:now+d*70,add:90*dir})}})}}
+ kick()});
+cv.addEventListener('pointerleave',()=>{mouse.on=false;mouse.x=mouse.y=-1e4;kick()});
+cv.addEventListener('click',e=>{const b=cv.getBoundingClientRect(),ce=cellAt(e.clientX-b.left,e.clientY-b.top);if(ce){wave(ce.c,ce.r);schedule()}});
+const WB=[{paper:3.4,red:3,navy:1.2,yel:.8,cob:.6},{paper:3.4,cob:3,navy:1.2,yel:.8,red:.6},{paper:3.4,yel:3,navy:1.3,red:.8,cob:.7},{paper:3,navy:3.2,red:.9,cob:.9,yel:.9}],BASEW={...BGW};
+document.querySelectorAll('.s-works li').forEach(li=>{
+ const on=()=>{BGW=WB[li.dataset.w];wave(li.dataset.w%2?cols-1:0,rows-1,'random');schedule()},off=()=>{BGW=BASEW};
+ li.addEventListener('pointerenter',on);li.addEventListener('pointerleave',off);li.addEventListener('focusin',on);li.addEventListener('focusout',off);
+});
+let timer;function schedule(){clearTimeout(timer);if(!paused&&visible)timer=setTimeout(auto,4200)}
+function auto(){const k=rnd(4)|0;wave(k%2?cols-1:0,k>1?rows-1:0);schedule()}
+const eio=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let lt=performance.now(),running=false,visible=true,idle=0;
+function frame(now){
+ const dt=Math.min(.05,(now-lt)/1000);lt=now;let busy=false;
+ x.setTransform(DPR,0,0,DPR,0,0);x.fillStyle=C.paper;x.fillRect(0,0,cols*S,rows*S);
+ for(const t of tiles){
+  if(inPhoto(t.c,t.r))continue;
+  if(t.q&&t.q.length){busy=true;if(now>=t.q[0].at)t.tr+=t.q.shift().add}
+  if(RM){t.rot=t.tr}else{const a=(t.tr-t.rot)*170-t.v*15;t.v+=a*dt;t.rot+=t.v*dt;if(Math.abs(t.tr-t.rot)>.05||Math.abs(t.v)>.05)busy=true}
+  const cx=(t.c+.5)*S,cy=(t.r+.5)*S,dx=mouse.x-cx,dy=mouse.y-cy,d=Math.hypot(dx,dy),pr=mouse.on&&!RM?Math.max(0,1-d/(S*1.7)):0;
+  const tl=pr*Math.max(-1,Math.min(1,dx/S))*.22,ts=1-pr*.1;t.lean+=(tl-t.lean)*Math.min(1,dt*10);t.sc+=(ts-t.sc)*Math.min(1,dt*10);if(Math.abs(tl-t.lean)>.001||Math.abs(ts-t.sc)>.001)busy=true;
+  let fy=1,shade=0;
+  if(t.next&&now>=t.fs){busy=true;const p=Math.min(1,(now-t.fs)/t.fd),e=eio(p);fy=Math.abs(Math.cos(Math.PI*e));shade=Math.sin(Math.PI*e)*.12;
+   if(e>=.5&&!t.sw){t.sw=true;const n=t.next;Object.assign(t,{bg:n.bg,fg:n.fg,sh:n.sh,fx:n.fx,gl:n.gl});const base=n.rot;t.tr=base+Math.round((t.tr-base)/360)*360;t.rot=t.tr;t.v=0}
+   if(p>=1){t.next=null}}else if(t.next)busy=true;
+  if(t.born===0)t.born=now+(RM?0:(t.c+t.r)*90+500);
+  const bp=RM?1:Math.max(0,Math.min(1,(now-t.born)/700));if(bp<1){busy=true;fy*=eio(bp);shade=Math.max(shade,(1-bp)*.15)}
+  x.save();x.translate(cx,cy);x.beginPath();x.rect(-S/2,-S/2,S,S);x.clip();
+  if(bp<1){x.fillStyle=C.paper;x.fillRect(-S/2,-S/2,S,S)}
+  x.scale(1,Math.max(.001,fy));x.fillStyle=C[t.bg];x.fillRect(-S/2-.5,-S/2-.5,S+1,S+1);
+  x.rotate(t.rot*Math.PI/180+t.lean);x.scale(t.fx&&t.sh!=='glyph'?-t.sc:t.sc,t.sc);shape(t,S);x.restore();
+  if(shade>0){x.fillStyle=`rgba(24,34,63,${shade})`;x.fillRect(t.c*S,(t.r+.5)*S-S/2*fy,S,S*fy)}
+ }
+ if(photoFlip||mouse.on)busy=true;
+ drawPhoto(now);
+ x.strokeStyle='rgba(242,237,228,.55)';x.lineWidth=1;x.beginPath();for(let c=1;c<cols;c++){x.moveTo(c*S+.5,0);x.lineTo(c*S+.5,rows*S)}for(let r=1;r<rows;r++){x.moveTo(0,r*S+.5);x.lineTo(cols*S,r*S+.5)}x.stroke();
+ idle=busy?0:idle+1;
+ if(visible&&idle<3)requestAnimationFrame(frame);else running=false;
+}
+function kick(){idle=0;if(!running&&visible){running=true;requestAnimationFrame(t=>{lt=t;frame(t)})}}
+new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(visible){kick();schedule()}else clearTimeout(timer)}).observe(field);
+function boot(){fit();layout()}
+boot();
+requestAnimationFrame(()=>{document.body.classList.add('ld');kick();schedule()});
+if(document.fonts)document.fonts.ready.then(()=>{fit();layout()});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(boot,100)});
+})();
+</script>
+</body>
+</html>
