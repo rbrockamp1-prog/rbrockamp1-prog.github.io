@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ricky Brockamp — Product Designer</title>
+<meta name="description" content="Ricky Brockamp is a product designer and design lead in Los Angeles. Leading product design for complex, regulated systems. Empathetic, solutions-oriented, persistent.">
+<meta name="theme-color" content="#e9edf3">
+<meta property="og:title" content="Ricky Brockamp — Product Designer">
+<meta property="og:description" content="Ricky Brockamp is a product designer and design lead in Los Angeles. Leading product design for complex, regulated systems. Empathetic, solutions-oriented, persistent.">
+<meta property="og:image" content="assets/ricky.jpg">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wdth,wght@0,50..150,100..900&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="home.css">
+</head>
+<body class="home">
+<a class="skip" href="overview.html">Skip the canvas: open the list view</a>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="site-header">
+ <div class="wrap">
+  <a class="brand" href="index.html" aria-current="page"><span class="mono" aria-hidden="true">RB</span><span class="file"><b>Ricky Brockamp</b><span>Portfolio — Product Designer</span></span><span class="sr-only">, home</span></a>
+  <nav class="site-nav" aria-label="Primary"><ul><li><a href="#work">Work</a></li><li><a href="about.html">About</a></li><li><a href="process.html">Process</a></li><li><a href="photo.html">Photo</a></li><li><a href="resume.html">Resume</a></li></ul></nav>
+  <a class="btn btn-sm header-cta" href="mailto:rbrockamp1@gmail.com">Get in touch</a>
+ </div>
+</header>
+<main id="main" tabindex="-1">
+ <p class="sr-only" id="vp-help">This is an interactive canvas of frames, like a design file. Tab moves between links, and the view follows your focus. With the canvas focused, use plus and minus to zoom and Shift plus 1 to fit everything. The list view link shows the same content as a simple page.</p>
+ <div id="vp" tabindex="0" role="region" aria-label="Interactive portfolio canvas" aria-describedby="vp-help"><div id="w"></div></div>
+
+<aside class="ui" id="ins" aria-label="Inspector"></aside>
+
+<div class="ui" id="tool" role="toolbar" aria-label="Canvas tools">
+ <button type="button" data-t="move" aria-pressed="true" aria-label="Move tool"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 7-6 1.6L10 18z"/></svg></button>
+ <button type="button" data-t="hand" aria-pressed="false" aria-label="Hand tool (pan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12V5.5a1.5 1.5 0 013 0V11m0-6.5a1.5 1.5 0 013 0V11m0-5a1.5 1.5 0 013 0v7c0 4-2.5 7-6.5 7S6 18 4.5 15.5L3 13a1.5 1.5 0 012.4-1.8L8 14"/></svg></button>
+ <button type="button" data-t="fit" aria-label="Zoom to fit everything"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+ <button type="button" class="mt" id="motion" aria-pressed="false">Pause cursors</button>
+ <span class="hint" id="hint" aria-hidden="true">Drag to pan · Scroll or pinch to zoom · Drag the handles</span>
+</div>
+
+<div class="ui" id="mmw"><canvas id="mm" width="400" height="236" aria-hidden="true"></canvas>
+ <div class="zm"><button type="button" id="zo" aria-label="Zoom out">−</button><button type="button" id="zp" aria-label="Zoom to fit everything">100%</button><button type="button" id="zi" aria-label="Zoom in">+</button></div></div>
+
+<a class="ui" id="lab" href="overview.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>List view</a>
+</main>
+
+<script>
+(()=>{
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const vp=$('#vp'),W=$('#w'),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const IMG={nmls:'assets/nmls.jpg',ds:'assets/design-system.jpg',rw:'assets/regulator-workspace.jpg',re:'assets/real-estate.jpg',me:'assets/ricky.jpg'};
+const frIcon='<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 0v10M7 0v10M0 3h10M0 7h10"/></svg>';
+let mob=innerWidth<720;
+let paused=RM;try{const v=localStorage.getItem('rb-motion');if(v)paused=v==='off'}catch(e){}
+
+/* ---------- build world (DOM order = reading order) ---------- */
+const el=(cls,html,parent=W,tag='div')=>{const d=document.createElement(tag);d.className=cls;d.innerHTML=html;parent.appendChild(d);return d};
+const frame=(id,name,html,cls='',tag='div')=>{const f=el('fr '+cls,`<div class="lb" aria-hidden="true">${frIcon}<span>${name}</span></div><div class="clip">${html}</div><div class="dim" aria-hidden="true"><b></b></div>`,W,tag);f.id=id;f.dataset.n=name;return f};
+const section=(id,name,hid)=>{const s=el('sec',`<h2 class="sl" id="${hid}">${name}</h2>`,W,'section');s.id=id;s.setAttribute('aria-labelledby',hid);return s};
+
+const H=frame('hero','Hero / Desktop',`<div class="hin">
+ <div class="hrow"><span class="eb"><i></i>Product Designer · Design Lead</span><span>Los Angeles, CA</span></div>
+ <div class="nmw"><h1 class="nm on" id="nm"><span class="sr-only">Ricky Brockamp</span><span class="nt" id="nt" aria-hidden="true">Ricky<br>Brockamp<em>.</em></span><span class="bx" aria-hidden="true">${['nw','n','ne','e','se','s','sw','w'].map(h=>`<i class="h" data-h="${h}"></i>`).join('')}<span class="tag"><b id="tg"></b></span></span></h1></div>
+ <div class="hbot"><div class="hl"><p>Leading product design for complex, regulated systems. Empathetic, solutions-oriented, persistent.</p>
+ <div class="cta"><button type="button" class="b1" data-go="work">View selected work <span aria-hidden="true">↓</span></button><a class="b2" href="mailto:rbrockamp1@gmail.com">rbrockamp1@gmail.com</a></div></div>
+ <ul class="chips" aria-label="Focus areas"><li>AI initiatives</li><li>Design Systems</li><li>Accessibility</li><li>Research</li><li>Product Strategy</li></ul></div></div>`,'hero','header');
+const P=frame('photo','Portrait / B&W',`<div class="ph" style="position:absolute;inset:0"><img src="${IMG.me}" alt="Ricky Brockamp standing on a gravel garden path in a rain jacket and cap, smiling."><a class="open" href="about.html">About me <span aria-hidden="true">→</span></a></div>`);
+
+const sW=section('work','Selected work · 01—04','w-h');
+const cases=[['nmls','NMLS Modernization','Information Architecture','work/nmls.html','Laptop showing the redesigned NMLS home screen with license status, quick links and a task list.'],['ds','Design System — FINRA UI','Design System & Accessibility','work/finra-ui.html','Laptop showing the FINRA UI design system site.'],['rw','Regulator Workspace','Product Design · FINRA client','work/regulator-workspace.html','Laptop showing an Individual Profile screen with resource cards.'],['re','Real Estate Tech','Branding & Product Design','work/real-estate-tech.html','Desktop monitor showing the ARG Corp. sign-in screen.']];
+const CF=cases.map((c,i)=>{const f=frame('c'+i,c[1],`<div class="mk"><img src="${IMG[c[0]]}" alt="${c[4]}" loading="lazy"></div><div class="cap"><div><h3>${c[1]}</h3><span>${c[2]}</span></div><a class="open" href="${c[3]}">Open case<span class="sr-only">: ${c[1]}</span> <span aria-hidden="true">→</span></a></div>`,'case','article');sW.appendChild(f);return f});
+
+const sQ=section('quotes','Testimonials','q-h');
+const QT=[['Ricky is a thoughtful mentor, a gifted designer, and an inspiring leader. Ricky’s enthusiasm is contagious; many positive workplace initiatives were initiated or inspired by him.','Brooke Davidson Hoareau','Associate Director of UX, FINRA','#fff1a8'],['Ricky is very easy to work with, very responsive, and efficient with his time. He not only follows through with deliverables, but he also trains the people he collaborates with as he goes.','Keely Funkhouser','VP Product, Randall Reilly','#d6ecff'],['Ricky has a great understanding of scope and his designs are always thoughtful, empathetic, and impactful.','Jasmine Nehzati','Experience Designer, Team One','#d8f3e1']];
+QT.forEach((q,i)=>{const d=el('qt',`<blockquote><p>${q[0]}</p></blockquote><figcaption><b>${q[1]}</b>${q[2]}</figcaption>`,sQ,'figure');d.style.cssText=`left:32px;top:${28+i*0}px;width:360px;background:${q[3]}`;d.dataset.i=i});
+
+const sR=section('research','Process — research synthesis','r-h');
+const ST=[['How might we give reviewers one source of truth?','#fff1a8','Research'],['Map every path before redrawing the navigation.','#ffd9c9','Ricky'],['Audit every token against WCAG 2.2 AA.','#d6ecff','Eng'],['AI should assist the reviewer — never decide.','#e6dcff','Research'],['Empathy first: sit with the people doing the work.','#d8f3e1','Ricky'],['Persistent: test, learn, re-test.','#fff1a8','PM']];
+const stl=el('','',sR,'ul');stl.setAttribute('role','list');stl.style.cssText='list-style:none;margin:0;padding:0';
+ST.forEach((s,i)=>{const d=el('st',`<span>${s[0]}</span><small>${s[2]}</small>`,stl,'li');d.style.cssText=`left:${32+(i%2)*262}px;top:${70+(i>>1)*212}px;background:${s[1]}`;d.dataset.n='Sticky — '+s[2]});
+el('sec-link','See my full process <span aria-hidden="true">→</span>',sR,'a').href='process.html';
+
+const sC=section('comp','Components — FINRA UI','c-h');
+const C=(x,y,html)=>{const d=el('cm',html,sC);d.style.left=x+'px';d.style.top=y+'px';return d};
+const rl=(x,y,len,v,t)=>{const d=el('rl '+(v?'vt':'hz'),`<b>${t}</b>`,sC);d.setAttribute('aria-hidden','true');d.style.cssText=`left:${x}px;top:${y}px;${v?'height':'width'}:${len}px`};
+C(48,92,`<div class="cl">Button / Primary</div><div class="btnx">Get in touch <span aria-hidden="true">→</span></div>`);
+rl(48,180,24,0,'24');rl(48+24,180,104,0,'Hug');rl(30,120,48,1,'48');
+C(300,92,`<div class="cl">Button / Secondary</div><div class="btnx s">View case</div>`);
+C(48,230,`<div class="cl">Input / Focus</div><div class="inp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Search filings</div>`);
+rl(48+306,258,48,1,'2px ring · 3:1');
+C(48,348,`<div class="cl">Tokens / Contrast on white</div><ul class="tk">${[['#1a2030','ink-900','16.2 : 1 AAA'],['#0a64b0','blue-700','6.0 : 1 AA'],['#c2410c','warm-700','5.2 : 1 AA'],['#566074','slate-600','6.2 : 1 AA']].map(t=>`<li><i style="background:${t[0]}"></i><span>${t[1]}</span><em>${t[2]}</em></li>`).join('')}</ul>`);
+rl(48,540,430,0,'Grid · 8pt');
+el('sec-link','Read the FINRA UI case <span aria-hidden="true">→</span>',sC,'a').href='work/finra-ui.html';
+
+const R=frame('resume','Resume — 2026',`<div class="rs"><div><h2 class="h4">Resume</h2><h3>Ricky<br>Brockamp</h3><p>Product Designer · Design Lead<br>Los Angeles, CA</p><p style="margin-top:14px"><a href="mailto:rbrockamp1@gmail.com" style="color:var(--sel-text);font-weight:700">rbrockamp1@gmail.com</a></p></div>
+<div><h4>Experience</h4><ul><li><b>FINRA</b> · 2022 – now</li><li><b>Hexagon</b> · 2021 – 22</li><li><b>SkillPointe</b> · 2020 – 21</li><li><b>Freelance</b> · 2020 – now</li></ul><h4 style="margin-top:18px">Focus</h4><ul>${['Design Systems','Accessibility','Research','AI initiatives','Product Strategy'].map(t=>`<li>${t}</li>`).join('')}</ul></div><a class="open" href="resume.html">Open full resume <span aria-hidden="true">→</span></a></div>`,'','section');
+R.setAttribute('aria-label','Resume summary');
+
+/* cursors (decorative) */
+const CUR=[{n:'Research',c:'#c2410c',t:'.st,#research,#photo,.case'},{n:'Eng',c:'#0b7a3e',t:'.cm,#comp,#c1,.chips,.b1'},{n:'PM',c:'#7b3fe4',t:'.case,#hero,#resume,.cta,#work'}];
+CUR.forEach(k=>{k.el=el('cur',`<svg width="18" height="20" viewBox="0 0 18 20"><path d="M1.5 1.5l14 7.2-6.3 1.6-3 6.6z" fill="${k.c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg><b style="background:${k.c}">${k.n}</b>`);k.el.setAttribute('aria-hidden','true');k.rs=el('rsel',`<b>${k.n}</b>`);k.rs.setAttribute('aria-hidden','true');k.rs.style.setProperty('--c',k.c);k.x=0;k.y=0;k.until=0;k.path=null});
+
+/* ---------- layout ---------- */
+let L={};
+function layout(){
+ mob=innerWidth<720;
+ const hw=mob?360:1120,hh=mob?660:640;
+ H.classList.toggle('m',mob);H.querySelector('.lb span').textContent=H.dataset.n=mob?'Hero / Mobile':'Hero / Desktop';
+ H.style.setProperty('--fs',mob?'64px':'172px');
+ const px=hw+60,cx=px+480;
+ L={hero:[0,0,hw,hh],photo:[px,0,420,560],comp:[cx,0,600,640],research:[-640,0,580,760],work:[-24,hh+90,4*560+3*60+48,620],resume:[-640,hh+190,580,440],quotes:[-24,hh+800,3*400+48,330]};
+ CF.forEach((f,i)=>L['c'+i]=[i*620,hh+190,560,440]);
+ for(const k in L){const e=document.getElementById(k),r=L[k];let ox=0,oy=0;if(k[0]==='c'&&k.length===2){ox=L.work[0];oy=L.work[1]}
+  e.style.cssText+=`;left:${r[0]-ox}px;top:${r[1]-oy}px;width:${r[2]}px;height:${r[3]}px`;const d=e.querySelector(':scope>.dim b');if(d)d.textContent=r[2]+' × '+r[3]}
+ $$('.qt').forEach((q,i)=>{q.style.left=(24+i*400)+'px';q.style.top='28px'});
+ bounds=Object.values(L).reduce((b,r)=>[Math.min(b[0],r[0]),Math.min(b[1],r[1]),Math.max(b[2],r[0]+r[2]),Math.max(b[3],r[1]+r[3])],[1e9,1e9,-1e9,-1e9]);
+}
+let bounds;const BR=()=>[bounds[0],bounds[1],bounds[2]-bounds[0],bounds[3]-bounds[1]];layout();
+$$('.sec,.fr').forEach((e,i)=>e.style.setProperty('--d',(RM?0:.15+i*.07)+'s'));
+
+/* ---------- camera ---------- */
+const C0={x:0,y:0,s:.5},T={...C0};let A=null,fly=null,inert=null;
+const clampS=s=>Math.max(.06,Math.min(4,s));
+const vw=()=>innerWidth,vh=()=>innerHeight;
+function pads(){const top=($('.site-header')||{offsetHeight:60}).offsetHeight+24;return mob?{t:top,b:120,l:16,r:16}:{t:top,b:72,l:40,r:innerWidth>1180?292:40}}
+function fitRect(r,extra=1){const p=pads(),s=clampS(Math.min((vw()-p.l-p.r)/r[2],(vh()-p.t-p.b)/r[3])*extra);return{s,x:p.l+(vw()-p.l-p.r-r[2]*s)/2-r[0]*s,y:p.t+(vh()-p.t-p.b-r[3]*s)/2-r[1]*s}}
+function flyTo(to,dur=1100){A=null;inert=null;fly={f:{...C0},t:to,t0:performance.now(),d:RM?0:dur};Object.assign(T,to);if(RM){Object.assign(C0,to);fly=null}}
+function zoomAt(px,py,s,instant){s=clampS(s);const wx=(px-T.x)/T.s,wy=(py-T.y)/T.s;T.s=s;T.x=px-wx*s;T.y=py-wy*s;fly=null;if(instant||RM){Object.assign(C0,T);A=null}else A={px,py,wx,wy}}
+function panBy(dx,dy){T.x+=dx;T.y+=dy;C0.x+=dx;C0.y+=dy;if(A){A.px+=dx;A.py+=dy}fly=null}
+const eio=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* ---------- selection & inspector ---------- */
+const nm=$('#nm'),nt=$('#nt'),tg=$('#tg'),ins=$('#ins');
+let sel='name',V={wg:760,wd:100};
+function maxWd(){const fw=L.hero[2]-(mob?64:124);return Math.max(50,Math.min(150,V.wd*fw/nm.offsetWidth))}
+function setV(wg,wd,noClamp){V.wg=Math.round(Math.max(100,Math.min(900,wg)));V.wd=Math.max(50,Math.min(150,wd));nt.style.fontVariationSettings=`'wght' ${V.wg},'wdth' ${V.wd.toFixed(1)}`;if(!noClamp&&nm.offsetWidth>L.hero[2]-(mob?64:124)){V.wd=maxWd();nt.style.fontVariationSettings=`'wght' ${V.wg},'wdth' ${V.wd.toFixed(1)}`}tg.textContent=`Anybody · ${V.wg} / ${Math.round(V.wd)}`;syncIns()}
+function select(s){sel=s;$$('.fr.sel').forEach(f=>f.classList.remove('sel'));nm.classList.toggle('on',s==='name');if(s!=='name')s.classList.add('sel');renderIns()}
+function renderIns(){
+ if(sel==='name'){ins.innerHTML=`<div class="it" aria-hidden="true"><b>Design</b><span>Prototype</span></div>
+ <div class="is"><h2>Type <span>Ricky Brockamp</span></h2><div class="ff"><span>Anybody</span><span style="color:var(--mute)">Variable</span></div>
+ <label class="ir">Weight<input type="range" id="iw" min="100" max="900" step="1"><output id="ow" for="iw"></output></label>
+ <label class="ir">Width<input type="range" id="id" min="50" max="150" step=".5"><output id="od" for="id"></output></label>
+ <div class="ig"><div><span>Size</span>${mob?64:172}</div><div><span>LH</span>84%</div></div></div>
+ <div class="is"><h2>Tip <span>drag handles</span></h2><p style="font:500 11.5px/1.5 var(--body);color:var(--mute);margin:0 0 8px">Horizontal handles set width, vertical handles set weight. Or use the sliders above.</p></div>`;
+ const iw=$('#iw'),idd=$('#id');iw.oninput=()=>{cancelDemo();setV(+iw.value,V.wd)};idd.oninput=()=>{cancelDemo();setV(V.wg,+idd.value)};syncIns()}
+ else{const r=L[sel.id];ins.innerHTML=`<div class="it" aria-hidden="true"><b>Design</b><span>Prototype</span></div>
+ <div class="is"><h2>Frame <span>${sel.dataset.n}</span></h2><div class="ig"><div><span>X</span>${r[0]}</div><div><span>Y</span>${r[1]}</div><div><span>W</span>${r[2]}</div><div><span>H</span>${r[3]}</div></div></div>
+ <div class="is"><h2>Layout <span>Clip content</span></h2><div class="ig"><div><span>Pad</span>${sel.id==='hero'?52:24}</div><div><span>Grid</span>8pt</div></div></div>`}
+}
+function syncIns(){const iw=$('#iw'),idd=$('#id');if(!iw)return;iw.value=V.wg;idd.value=V.wd;$('#ow').textContent=V.wg;$('#od').textContent=Math.round(V.wd);iw.style.setProperty('--p',(V.wg-100)/8+'%');idd.style.setProperty('--p',(V.wd-50)+'%')}
+
+/* ---------- handles ---------- */
+let hd=null;
+$$('.h').forEach(h=>h.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();cancelDemo();select('name');const d=h.dataset.h;hd={sx:d.includes('e')?1:d.includes('w')?-1:0,sy:d.includes('s')?1:d.includes('n')?-1:0,x:e.clientX,y:e.clientY,wg:V.wg,wd:V.wd,bw:nm.offsetWidth};hideHint()}));
+function moveHandle(e){const dx=(e.clientX-hd.x)/C0.s,dy=(e.clientY-hd.y)/C0.s;const wd=hd.sx?hd.wd*Math.max(.2,(hd.bw+hd.sx*dx)/hd.bw):hd.wd;const wg=hd.sy?hd.wg+hd.sy*dy*3:hd.wg;setV(wg,wd)}
+
+/* ---------- pointer: pan / pinch / click ---------- */
+const P2=new Map();let drag=null,pin=null,space=false,tool='move';
+vp.addEventListener('pointerdown',e=>{
+ if(e.target.closest('a,button,input'))return;
+ P2.set(e.pointerId,{x:e.clientX,y:e.clientY});fly=null;inert=null;
+ if(P2.size===2){const[a,b]=[...P2.values()];pin={d:Math.hypot(a.x-b.x,a.y-b.y),m:{x:(a.x+b.x)/2,y:(a.y+b.y)/2},s:T.s};drag=null;return}
+ drag={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,lt:performance.now(),vx:0,vy:0,moved:space||tool==='hand'||e.button===1,t:e.target};
+ if(drag.moved)vp.classList.add('grabbing');
+});
+addEventListener('pointermove',e=>{
+ if(hd){moveHandle(e);return}
+ if(!P2.has(e.pointerId))return;P2.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pin&&P2.size>=2){const[a,b]=[...P2.values()],d=Math.hypot(a.x-b.x,a.y-b.y),m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};panBy(m.x-pin.m.x,m.y-pin.m.y);pin.m=m;zoomAt(m.x,m.y,pin.s*d/pin.d,true);return}
+ if(!drag)return;
+ if(!drag.moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>4){drag.moved=true;vp.classList.add('grabbing');hideHint()}
+ if(drag.moved){const now=performance.now(),dt=Math.max(1,now-drag.lt),dx=e.clientX-drag.lx,dy=e.clientY-drag.ly;panBy(dx,dy);drag.vx=drag.vx*.6+dx/dt*.4;drag.vy=drag.vy*.6+dy/dt*.4;drag.lx=e.clientX;drag.ly=e.clientY;drag.lt=now}
+});
+const up=e=>{
+ if(hd){hd=null;return}
+ P2.delete(e.pointerId);if(pin){if(P2.size<2)pin=null;drag=null;return}
+ if(!drag)return;vp.classList.remove('grabbing');
+ if(!drag.moved)clickAt(drag.t);
+ else if(!RM&&performance.now()-drag.lt<80)inert={vx:drag.vx,vy:drag.vy};
+ drag=null;
+};
+addEventListener('pointerup',up);addEventListener('pointercancel',up);
+function clickAt(t){
+ if(t.closest('.nm'))return select('name');
+ const f=t.closest('.fr');
+ if(f){select(f);if(t.closest('.lb'))flyTo(fitRect(L[f.id],.94))}else select('name');
+}
+vp.addEventListener('dblclick',e=>{const f=e.target.closest('.fr');if(f&&!e.target.closest('a,button')){select(f);flyTo(fitRect(L[f.id],.94))}});
+vp.addEventListener('wheel',e=>{
+ e.preventDefault();hideHint();inert=null;
+ const pinch=e.ctrlKey||e.metaKey,mw=!pinch&&(e.deltaMode===1||(e.deltaX===0&&Math.abs(e.deltaY)>=40&&Number.isInteger(e.deltaY)));
+ if(pinch||mw){const d=e.deltaMode===1?e.deltaY*33:e.deltaY;zoomAt(e.clientX,e.clientY,T.s*Math.exp(-d*(pinch?.012:.0022)))}
+ else panBy(-e.deltaX,-e.deltaY);
+},{passive:false});
+/* keyboard shortcuts only while focus is inside the canvas (WCAG 2.1.4) */
+vp.addEventListener('keydown',e=>{
+ if(e.target.closest('input'))return;
+ const mx=vw()/2,my=vh()/2;let used=true;
+ if(e.code==='Space'&&e.target===vp){space=true;vp.classList.add('grab')}
+ else if(e.key==='='||e.key==='+')zoomAt(mx,my,T.s*1.25);
+ else if(e.key==='-')zoomAt(mx,my,T.s/1.25);
+ else if(e.key==='!'||(e.shiftKey&&e.code==='Digit1'))flyTo(fitRect(BR()));
+ else if(e.key==='0'&&!e.shiftKey)zoomAt(mx,my,1);
+ else if(e.key==='ArrowLeft'&&e.target===vp)panBy(80,0);else if(e.key==='ArrowRight'&&e.target===vp)panBy(-80,0);
+ else if(e.key==='ArrowUp'&&e.target===vp)panBy(0,80);else if(e.key==='ArrowDown'&&e.target===vp)panBy(0,-80);
+ else if(e.key==='Escape')select('name');else used=false;
+ if(used&&e.key!=='Escape')e.preventDefault();
+});
+addEventListener('keyup',e=>{if(e.code==='Space'){space=false;vp.classList.remove('grab')}});
+/* the view follows keyboard focus */
+vp.addEventListener('focusin',e=>{if(e.target===vp)return;const f=e.target.closest('.fr')||e.target.closest('.sec');if(!f)return;
+ vp.scrollTop=0;vp.scrollLeft=0;W.scrollTop=0;
+ const r=L[f.id];if(r){if(f.classList.contains('fr'))select(f);flyTo(fitRect(r,.94),700)}});
+vp.addEventListener('scroll',()=>{vp.scrollTop=0;vp.scrollLeft=0});
+function setTool(t){tool=t;$$('#tool [data-t]').forEach(b=>{if(b.dataset.t!=='fit')b.setAttribute('aria-pressed',String(b.dataset.t===t))});vp.classList.toggle('grab',t==='hand')}
+$$('#tool [data-t]').forEach(b=>b.onclick=()=>b.dataset.t==='fit'?flyTo(fitRect(BR())):setTool(b.dataset.t));
+$('#zi').onclick=()=>zoomAt(vw()/2,vh()/2,T.s*1.3);$('#zo').onclick=()=>zoomAt(vw()/2,vh()/2,T.s/1.3);$('#zp').onclick=()=>flyTo(fitRect(BR()));
+let hinted=false;function hideHint(){if(!hinted){hinted=true;$('#hint').style.opacity=0}}
+
+/* nav: Work flies to the work section; other links are real pages */
+function go(k){const r=L[k];flyTo(fitRect(r,k==='hero'?(mob?1:.8):.94),1300);setTimeout(()=>{const f=document.getElementById(k);select(f.classList.contains('fr')?(k==='hero'?'name':f):'name')},RM?0:600)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){go(b.dataset.go);return}
+ const a=e.target.closest('a[href="#work"]');if(a){e.preventDefault();go('work');const first=CF[0].querySelector('a');setTimeout(()=>first&&first.focus({preventScroll:true}),RM?0:900)}});
+
+/* minimap */
+const mm=$('#mm'),mx=mm.getContext('2d');
+function mmMap(){const bw=bounds[2]-bounds[0],bh=bounds[3]-bounds[1],s=Math.min(380/bw,216/bh);return{s,ox:(400-bw*s)/2-bounds[0]*s,oy:(236-bh*s)/2-bounds[1]*s}}
+function drawMM(){
+ if(mm.offsetParent===null)return;const m=mmMap();mx.clearRect(0,0,400,236);
+ for(const k in L){const r=L[k],isS=k==='work'||k==='research'||k==='comp'||k==='quotes';mx.fillStyle=isS?'rgba(160,172,192,.18)':(document.getElementById(k).classList.contains('sel')||(k==='hero'&&sel==='name'))?'#cfe8ff':'#fff';mx.beginPath();mx.roundRect(r[0]*m.s+m.ox,r[1]*m.s+m.oy,r[2]*m.s,r[3]*m.s,isS?5:2);mx.fill()}
+ CUR.forEach(k=>{if(!k.started)return;mx.fillStyle=k.c;mx.beginPath();mx.arc(k.x*m.s+m.ox,k.y*m.s+m.oy,4,0,7);mx.fill()});
+ const x0=(-C0.x/C0.s)*m.s+m.ox,y0=(-C0.y/C0.s)*m.s+m.oy;mx.strokeStyle='#0d99ff';mx.lineWidth=2.5;mx.fillStyle='rgba(13,153,255,.07)';mx.beginPath();mx.roundRect(x0,y0,vw()/C0.s*m.s,vh()/C0.s*m.s,3);mx.fill();mx.stroke();
+}
+let mmd=false;const mmGo=e=>{const r=mm.getBoundingClientRect(),m=mmMap(),wx=((e.clientX-r.left)*2-m.ox)/m.s,wy=((e.clientY-r.top)*2-m.oy)/m.s;fly=null;A=null;T.x=vw()/2-wx*T.s;T.y=vh()/2-wy*T.s};
+mm.addEventListener('pointerdown',e=>{mmd=true;mm.setPointerCapture(e.pointerId);mmGo(e)});mm.addEventListener('pointermove',e=>mmd&&mmGo(e));mm.addEventListener('pointerup',()=>mmd=false);
+
+/* ---------- collaborator cursors (decorative, pausable) ---------- */
+function wr(e){let x=0,y=0,n=e;while(n&&n!==W){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return{x,y,w:e.offsetWidth,h:e.offsetHeight}}
+function view(){return{x:-C0.x/C0.s,y:-C0.y/C0.s,w:vw()/C0.s,h:vh()/C0.s}}
+function pathTo(k,x,y,now,dur){const dx=x-k.x,dy=y-k.y,d=Math.hypot(dx,dy)||1,b=(Math.random()-.5)*.5*d;k.path={p:[k.x,k.y,k.x+dx*.3-dy/d*b,k.y+dy*.3+dx/d*b,k.x+dx*.75-dy/d*b*.4,k.y+dy*.75+dx/d*b*.4,x,y],t0:now,d:dur||Math.min(2600,700+d*C0.s*1.1)}}
+function pick(k,now){
+ const v=view(),c=$$(k.t).filter(e=>{const r=wr(e);return r.x+r.w>v.x+40/C0.s&&r.x<v.x+v.w-40/C0.s&&r.y+r.h>v.y+80/C0.s&&r.y<v.y+v.h-60/C0.s});
+ if(!c.length){pathTo(k,v.x+v.w*(.2+Math.random()*.6),v.y+v.h*(.25+Math.random()*.5),now);k.tg=null;return}
+ const e=c[Math.random()*c.length|0],r=wr(e);k.tg=e;
+ pathTo(k,Math.max(r.x,Math.min(r.x+r.w,r.x+r.w*(.15+Math.random()*.6))),Math.max(r.y,Math.min(r.y+r.h,r.y+r.h*(.2+Math.random()*.5))),now);
+}
+const bz=(p,t)=>{const u=1-t;return[u*u*u*p[0]+3*u*u*t*p[2]+3*u*t*t*p[4]+t*t*t*p[6],u*u*u*p[1]+3*u*u*t*p[3]+3*u*t*t*p[5]+t*t*t*p[7]]};
+let demo=null;
+function cancelDemo(){if(demo){demo=null;nm.classList.add('on')}}
+function stepCursors(now){
+ CUR.forEach((k,i)=>{
+  if(paused){k.el.classList.remove('on');k.rs.classList.remove('on');return}
+  if(demo&&i===1){runDemo(k,now);return}
+  if(k.path){const t=Math.min(1,(now-k.path.t0)/k.path.d),[x,y]=bz(k.path.p,eio(t));k.x=x;k.y=y;
+   if(t>=1){k.path=null;k.until=now+900+Math.random()*1800;
+    if(k.tg&&Math.random()<.7){const r=wr(k.tg),p=4;Object.assign(k.rs.style,{left:r.x-p+'px',top:r.y-p+'px',width:r.w+p*2+'px',height:r.h+p*2+'px'});k.rs.classList.add('on');k.rsT=now+900+Math.random()*1400}}}
+  else if(now>k.until&&k.started)pick(k,now);
+  if(k.rsT&&now>k.rsT){k.rs.classList.remove('on');k.rsT=0}
+  if(k.started)k.el.classList.add('on');
+  const wob=k.path?0:Math.sin(now/600+i*2)*1.5/C0.s;
+  k.el.style.transform=`translate(${k.x+wob}px,${k.y+wob*.6}px) scale(${1/C0.s})`;
+ });
+}
+function handlePos(){const r=wr(nm);return[r.x+r.w,r.y+r.h/2]}
+function runDemo(k,now){
+ if(demo.ph===0){if(!k.path){const[hx,hy]=handlePos();pathTo(k,hx+2,hy+2,now,1100)}const tt=Math.min(1,(now-k.path.t0)/k.path.d);[k.x,k.y]=bz(k.path.p,eio(tt));if(tt>=1){k.path=null;demo.ph=1;demo.t1=now+250}}
+ else if(demo.ph===1&&now>demo.t1){const u=Math.min(1,(now-demo.t1)/1500),e=eio(u);setV(260+e*(760-260),62+e*(112-62));const[hx,hy]=handlePos();k.x=hx+2;k.y=hy+2;if(u>=1){demo.ph=2;demo.t2=now+500}}
+ else if(demo.ph===2&&now>demo.t2){demo=null;k.until=now+400}
+ k.el.style.transform=`translate(${k.x}px,${k.y}px) scale(${1/C0.s})`;
+}
+const mb=$('#motion');
+function syncMotion(){mb.setAttribute('aria-pressed',String(paused));mb.textContent=paused?'Play cursors':'Pause cursors'}
+mb.onclick=()=>{paused=!paused;try{localStorage.setItem('rb-motion',paused?'off':'on')}catch(e){}if(paused){if(demo){demo=null;setV(760,112)}}else startCursors();syncMotion()};
+syncMotion();
+function startCursors(){const v0=view();CUR.forEach((k,i)=>{if(!k.started){k.x=v0.x+v0.w*[.1,.9,.6][i];k.y=v0.y+v0.h*[.9,.85,.08][i]}k.started=true;k.until=performance.now()+i*700})}
+
+/* ---------- render loop ---------- */
+let lt=performance.now(),inv=-1;
+function frame_(now){
+ const dt=Math.min(64,now-lt);lt=now;
+ if(fly){const u=Math.min(1,(now-fly.t0)/Math.max(1,fly.d)),e=eio(u),f=fly.f,t=fly.t;
+  const s=Math.exp(Math.log(f.s)+(Math.log(t.s)-Math.log(f.s))*e),cx0=(vw()/2-f.x)/f.s,cy0=(vh()/2-f.y)/f.s,cx1=(vw()/2-t.x)/t.s,cy1=(vh()/2-t.y)/t.s;
+  const cx=cx0+(cx1-cx0)*e,cy=cy0+(cy1-cy0)*e;C0.s=s;C0.x=vw()/2-cx*s;C0.y=vh()/2-cy*s;if(u>=1){fly=null;Object.assign(C0,t)}}
+ else{const k=1-Math.exp(-dt/(RM?10:85));
+  if(A){C0.s=Math.exp(Math.log(C0.s)+(Math.log(T.s)-Math.log(C0.s))*k);C0.x=A.px-A.wx*C0.s;C0.y=A.py-A.wy*C0.s;if(Math.abs(C0.s/T.s-1)<.0005){Object.assign(C0,T);A=null}}
+  else{C0.x+=(T.x-C0.x)*k;C0.y+=(T.y-C0.y)*k;C0.s+=(T.s-C0.s)*k}}
+ if(inert){panBy(inert.vx*dt,inert.vy*dt);const f=Math.exp(-dt/240);inert.vx*=f;inert.vy*=f;if(Math.hypot(inert.vx,inert.vy)<.01)inert=null}
+ W.style.transform=`translate(${C0.x}px,${C0.y}px) scale(${C0.s})`;
+ if(Math.abs(C0.s-inv)>1e-5){inv=C0.s;W.style.setProperty('--inv',1/C0.s);$('#zp').textContent=Math.round(C0.s*100)+'%'}
+ let g=24*C0.s;while(g<14)g*=2;vp.style.backgroundSize=g+'px '+g+'px';vp.style.backgroundPosition=C0.x+'px '+C0.y+'px';
+ stepCursors(now);drawMM();
+ requestAnimationFrame(frame_);
+}
+
+/* ---------- boot ---------- */
+setV(RM||paused?760:260,RM||paused?112:62,true);select('name');
+Object.assign(C0,fitRect(BR(),.9));Object.assign(T,C0);
+requestAnimationFrame(()=>{
+ document.body.classList.add('ld');$$('.sec,.fr').forEach(e=>e.classList.add('in'));
+ const start=location.hash==='#work'?'work':'hero';
+ setTimeout(()=>{start==='work'?go('work'):flyTo(fitRect(L.hero,mob?1:.8),1500)},RM?0:900);
+ setTimeout(()=>{if(!paused){startCursors();demo={t0:performance.now(),ph:0}}},RM?400:2300);
+ requestAnimationFrame(frame_);
+});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const was=mob;layout();if(was!==mob){setV(V.wg,V.wd);renderIns()}flyTo(fitRect(L.hero,mob?1:.8),500)},120)});
+})();
+</script>
+</body>
+</html>
